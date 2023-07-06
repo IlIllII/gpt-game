@@ -23,9 +23,6 @@ class AttackAction(Action):
             raise Exception("Tile not in range")
         if not self.tile.is_occupied():
             raise Exception("Tile not occupied")
-        if self.tile.occupant.player == self.player:
-            # TODO: friendly fire?
-            raise Exception("Tile occupied by friendly unit")
         self.tile.occupant.health -= self.unit.attack_damage
 
 
