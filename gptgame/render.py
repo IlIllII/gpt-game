@@ -1,6 +1,6 @@
 import pygame
-from gptgame.game import Game
-from gptgame.statechange import StateChange
+from game import Game
+from statechange import StateChange
 
 
 class Renderer:
@@ -10,12 +10,14 @@ class Renderer:
         self.width = dims[0] * self.cell_size
         self.height = dims[1] * self.cell_size
         self.game = game
+        pygame.init()
+        pygame.display.set_caption("GPT Game")
         self.screen = pygame.display.set_mode((self.width, self.height))
-        self.font = pygame.font.SysFont("Arial", 20)
-        self.font_small = pygame.font.SysFont("Arial", 10)
+        # self.font = pygame.font.SysFont("Arial", 20)
+        # self.font_small = pygame.font.SysFont("Arial", 10)
         self.debug = False
 
-    def render(self, state_changes: list[StateChange]):
+    def render(self, state_changes: StateChange):
         board = self.game.board
         self.screen.fill((0, 0, 0))
         for i in range(board.height()):
@@ -23,8 +25,10 @@ class Renderer:
                 tile = board.get_tile(j, i)
                 self.render_tile(tile)
 
-        for state_change in state_changes:
+        for state_change in state_changes.state_changes:
             self.render_state_change(state_change)
+        
+        pygame.display.flip()
 
     def render_state_change(self, state_change: StateChange):
         for action in state_change.actions:

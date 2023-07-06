@@ -1,5 +1,5 @@
-from gptgame.tile import Tile
-from gptgame.action import Action, AttackAction, MoveAction, DieAction, IdleAction
+from tile import Tile
+from action import Action, AttackAction, MoveAction, DieAction, IdleAction
 
 
 class Unit:

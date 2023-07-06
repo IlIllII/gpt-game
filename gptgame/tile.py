@@ -8,3 +8,6 @@ class Tile:
 
     def __str__(self) -> str:
         return f"Tile(({self.x}, {self.y}), {self.rubble}, {self.resource})"
+
+    def is_occupied(self):
+        return self.occupant is not None

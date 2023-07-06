@@ -13,7 +13,7 @@ class Game:
         self.winner = None
     
     def game_dimensions(self):
-        return self.board.width, self.board.height
+        return self.board.width(), self.board.height()
 
     def update(self) -> StateChange:
         state_changes = []

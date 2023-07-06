@@ -1,5 +1,5 @@
-from gptgame.tile import Tile
-from gptgame.unit import Unit
+from tile import Tile
+from unit import Unit
 
 
 class Board:
