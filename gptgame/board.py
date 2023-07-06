@@ -4,10 +4,15 @@ class Unit:
 
 
 class Tile:
-    def __init__(self, rubble: int, resource: int) -> None:
+    def __init__(self, x: int, y: int, rubble: int, resource: int) -> None:
+        self.x = x
+        self.y = y
         self.rubble = rubble
         self.resource = resource
         self.occupant = None
+
+    def __str__(self) -> str:
+        return f"Tile(({self.x}, {self.y}), {self.rubble}, {self.resource})"
 
 
 class Board:
@@ -19,7 +24,7 @@ class Board:
         for i in range(len(rubble)):
             row = []
             for j in range(len(rubble[i])):
-                row.append(Tile(rubble[i][j], resource[i][j]))
+                row.append(Tile(j, i, rubble[i][j], resource[i][j]))
             self.tiles.append(row)
 
     def width(self) -> int:
@@ -69,3 +74,22 @@ class Board:
                     if i**2 + j**2 <= radius_squared:
                         tiles.append(self.get_tile(x + i, y + j))
         return tiles
+
+    def occupied_tiles_in_radius(self, x: int, y: int, radius: int) -> list:
+        tiles = []
+        for tile in self.tiles_in_radius(x, y, radius):
+            if tile.occupant is not None:
+                tiles.append(tile)
+        return tiles
+
+    def resource_tiles_in_radius(self, x: int, y: int, radius: int) -> list:
+        tiles = []
+        for tile in self.tiles_in_radius(x, y, radius):
+            if tile.resource > 0:
+                tiles.append(tile)
+        return tiles
+
+    def __str__(self) -> str:
+        return str(self.tiles)
+
+    
