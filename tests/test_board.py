@@ -1,5 +1,5 @@
 import pytest
-from gptgame import Board, Unit
+from gptgame.board import Board, Unit
 
 
 def test_tiles_in_radius():
