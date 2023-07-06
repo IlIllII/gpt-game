@@ -37,9 +37,6 @@ class Unit:
     def is_alive(self) -> bool:
         return self.alive
 
-    def attack(self, tile: Tile) -> Action:
-        return AttackAction(self, tile)
-
     def move(self, tile: Tile) -> Action:
         if not self.in_range(tile, 1):
             raise Exception("Tile not in range")

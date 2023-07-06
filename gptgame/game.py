@@ -18,6 +18,7 @@ class Game:
         units = self.all_units()
         random.shuffle(units)
         for unit in units:
+            unit.cooldown()
             action = unit.act(self.board)
             actions.append(action)
             movement = unit.move(self.board)

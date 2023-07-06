@@ -1,3 +1,5 @@
+from unit import Unit
+
 class Action:
     def __init__(self) -> None:
         pass
@@ -12,9 +14,9 @@ class IdleAction(Action):
 
 
 class AttackAction(Action):
-    def __init__(self, unit, tile) -> None:
-        self.unit = unit
-        self.tile = tile
+    def __init__(self, attacker: Unit, target: Unit) -> None:
+        self.attacker = attacker
+        self.target = target
     
     def execute(self, board) -> None:
         if not self.unit.in_range(self.tile):
