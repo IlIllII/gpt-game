@@ -36,7 +36,7 @@ class Board:
 
     def get_occupant(self, x: int, y: int) -> Unit:
         return self.tiles[y][x].occupant
-    
+
     def set_occupant(self, x: int, y: int, unit: Unit) -> None:
         if self.is_occupied(x, y):
             raise Exception("Tile already occupied")
@@ -49,19 +49,23 @@ class Board:
 
     def get_rubble(self, x: int, y: int) -> int:
         return self.tiles[y][x].rubble
-    
+
     def get_resource(self, x: int, y: int) -> int:
         return self.tiles[y][x].resource
-    
+
     def tiles_in_radius(self, x: int, y: int, radius: int) -> list:
         tiles = []
-        radius_squared = radius ** 2
+        radius_squared = radius**2
         for i in range(-radius, radius + 1):
             for j in range(-radius, radius + 1):
                 if i == 0 and j == 0:
                     continue
-                if x + i >= 0 and x + i < self.width() and y + j >= 0 and y + j < self.height():
-                    if i ** 2 + j ** 2 <= radius_squared:
+                if (
+                    x + i >= 0
+                    and x + i < self.width()
+                    and y + j >= 0
+                    and y + j < self.height()
+                ):
+                    if i**2 + j**2 <= radius_squared:
                         tiles.append(self.get_tile(x + i, y + j))
         return tiles
-
