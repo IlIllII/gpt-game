@@ -1,5 +1,3 @@
-from unit import Unit
-
 class Action:
     def __init__(self) -> None:
         pass
@@ -14,7 +12,7 @@ class IdleAction(Action):
 
 
 class AttackAction(Action):
-    def __init__(self, attacker: Unit, target: Unit) -> None:
+    def __init__(self, attacker, target) -> None:
         self.attacker = attacker
         self.target = target
     
