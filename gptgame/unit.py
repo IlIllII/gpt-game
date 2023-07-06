@@ -1,5 +1,5 @@
 from gptgame.tile import Tile
-from gptgame.action import Action, AttackAction, MoveAction
+from gptgame.action import Action, AttackAction, MoveAction, DieAction, IdleAction
 
 
 class Unit:
@@ -15,6 +15,17 @@ class Unit:
         self.vision_range = 0
         self.move_cooldown = 0
         self.attack_cooldown = 0
+        self.bounty = 10
+
+    def take_turn(self, board) -> tuple[Action, Action]:
+        # (Move, Act)
+        self.cooldown()
+        if not self.is_alive():
+            return self.die()
+        return (self.move(board), self.act(board))
+
+    def die(self) -> tuple[Action, Action]:
+        return (IdleAction(self), DieAction(self))
 
     def act(self, board) -> Action:
         raise NotImplementedError
@@ -27,7 +38,7 @@ class Unit:
             self.move_cooldown -= 1
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
-    
+
     def can_move(self) -> bool:
         return self.move_cooldown == 0
 
@@ -38,13 +49,6 @@ class Unit:
         return self.alive
 
     def move(self, tile: Tile) -> Action:
-        if not self.in_range(tile, 1):
-            raise Exception("Tile not in range")
-        if tile.is_occupied():
-            raise Exception("Tile occupied")
-        if tile.get_rubble() > 0:
-            raise Exception("Tile blocked by rubble")
-
         return MoveAction(self, tile)
 
     def in_range(self, tile: Tile, radius: int) -> bool:

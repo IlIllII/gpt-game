@@ -13,17 +13,25 @@ class Game:
         self.winner = None
 
     def update(self) -> StateChange:
-        actions = []
-        movements = []
+        state_changes = []
         units = self.all_units()
         random.shuffle(units)
         for unit in units:
-            unit.cooldown()
-            action = unit.act(self.board)
-            actions.append(action)
-            movement = unit.move(self.board)
-            movements.append(movement)
-        return StateChange(movements, actions)
+            state_change = unit.take_turn(self.board)
+            for action in state_change:
+                action.execute(self.board)
+            state_changes.append(state_change)
+
+        # Purge dead units
+        units = self.all_units()
+        for unit in units:
+            if not unit.is_alive():
+                state_change = unit.die()
+                for action in state_change:
+                    action.execute(self.board)
+                state_changes.append(state_change)
+
+        return StateChange(state_changes)
 
     def all_units(self):
         return self.player1.units + self.player2.units

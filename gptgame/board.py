@@ -40,6 +40,9 @@ class Board:
         self.tiles[y][x].occupant = None
 
     def get_rubble(self, x: int, y: int) -> int:
+        rubble = self.tiles[y][x].rubble
+        if not 0 < rubble <= 5:
+            raise Exception(f"Invalid rubble: {rubble}")
         return self.tiles[y][x].rubble
 
     def get_resource(self, x: int, y: int) -> int:
