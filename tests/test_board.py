@@ -87,3 +87,29 @@ def test_tiles_in_radius():
     assert set(tiles) == set(
         expected_tiles
     ), f"Tiles around ({x}, {y}) in radius={radius} did not match expected tiles"
+
+    expected_tiles = []
+
+    tiles = board.occupied_tiles_in_radius(x, y, radius)
+
+    assert set(tiles) == set(
+        expected_tiles
+    ), f"Tiles around ({x}, {y}) in radius={radius} did not match expected tiles"
+
+    board.set_occupant(0, 0, "test")
+
+    expected_tiles = [board.get_tile(0, 0)]
+
+    tiles = board.occupied_tiles_in_radius(x, y, radius)
+
+    assert set(tiles) == set(
+        expected_tiles
+    ), f"Tiles around ({x}, {y}) in radius={radius} did not match expected tiles"
+
+    expected_tiles = []
+
+    tiles = board.resource_tiles_in_radius(x, y, radius)
+
+    assert set(tiles) == set(
+        expected_tiles
+    ), f"Tiles around ({x}, {y}) in radius={radius} did not match expected tiles"
