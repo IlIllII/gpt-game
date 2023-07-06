@@ -1,6 +1,7 @@
 import random
 
 from action import Action
+from statechange import StateChange
 
 
 class Game:
@@ -11,14 +12,17 @@ class Game:
         self.board = gameboard
         self.winner = None
 
-    def run_step(self) -> Action:
+    def update(self) -> StateChange:
         actions = []
-        for unit in self.shuffled_units():
+        movements = []
+        units = self.all_units()
+        random.shuffle(units)
+        for unit in units:
             action = unit.act(self.board)
             actions.append(action)
-        return actions
+            movement = unit.move(self.board)
+            movements.append(movement)
+        return StateChange(movements, actions)
 
-    def shuffled_units(self):
-        units = self.player1.units + self.player2.units
-        random.shuffle(units)
-        return units
+    def all_units(self):
+        return self.player1.units + self.player2.units
