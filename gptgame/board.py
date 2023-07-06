@@ -41,12 +41,17 @@ class Board:
 
     def get_rubble(self, x: int, y: int) -> int:
         rubble = self.tiles[y][x].rubble
-        if not 0 < rubble <= 5:
+        if not 0 <= rubble <= 5:
             raise Exception(f"Invalid rubble: {rubble}")
         return self.tiles[y][x].rubble
 
     def get_resource(self, x: int, y: int) -> int:
         return self.tiles[y][x].resource
+    
+    def set_resource(self, x: int, y: int, resource: int) -> None:
+        # if not 0 <= resource <= 100:
+            # raise Exception(f"Invalid resource: {resource}")
+        self.tiles[y][x].resource = resource
 
     def tiles_in_radius(self, x: int, y: int, radius: int) -> list:
         tiles = []

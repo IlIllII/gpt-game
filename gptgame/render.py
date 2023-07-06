@@ -1,6 +1,7 @@
 import pygame
 from game import Game
 from statechange import StateChange
+from unit import Spawner, Soldier
 
 
 class Renderer:
@@ -31,7 +32,9 @@ class Renderer:
         pygame.display.flip()
 
     def render_state_change(self, state_change: StateChange):
-        for action in state_change.actions:
+        for action in state_change:
+            # act_action = action[1]
+            # move_action = action[0]
             if action.__class__.__name__ == "AttackAction":
                 self.render_attack_action(action)
             # TODO: Add other actions
@@ -74,7 +77,11 @@ class Renderer:
             return
         occupant = tile.occupant
         color = occupant.player.color
-        pygame.draw.rect(self.screen, color, self.get_rect(tile.x, tile.y))
+        if isinstance(occupant, Spawner):
+            pygame.draw.rect(self.screen, color, self.get_rect(tile.x, tile.y))
+        elif isinstance(occupant, Soldier):
+            pygame.draw.circle(self.screen, color, self.get_center(tile.x, tile.y), 10)
+            # pygame.draw.rect(self.screen, color, self.get_rect(tile.x, tile.y))
 
     def render_health(self, tile):
         raise NotImplementedError

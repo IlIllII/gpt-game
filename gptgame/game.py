@@ -21,7 +21,7 @@ class Game:
         random.shuffle(units)
         for unit in units:
             state_change = unit.take_turn(self.board)
-            for action in state_change:
+            for action in reversed(state_change):
                 action.execute(self.board)
             state_changes.append(state_change)
 
@@ -37,7 +37,7 @@ class Game:
         return StateChange(state_changes)
 
     def all_units(self):
-        return self.player1.units + self.player2.units
+        return self.player1.get_units() + self.player2.get_units()
 
     def check_for_winner(self):
         if len(self.player1.units) == 0:
