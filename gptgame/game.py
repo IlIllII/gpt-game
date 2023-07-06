@@ -11,6 +11,9 @@ class Game:
         self.turn = 1
         self.board = gameboard
         self.winner = None
+    
+    def game_dimensions(self):
+        return self.board.width, self.board.height
 
     def update(self) -> StateChange:
         state_changes = []
@@ -35,3 +38,15 @@ class Game:
 
     def all_units(self):
         return self.player1.units + self.player2.units
+
+    def check_for_winner(self):
+        if len(self.player1.units) == 0:
+            self.winner = self.player2
+        if len(self.player2.units) == 0:
+            self.winner = self.player1
+
+    def get_winner(self):
+        return self.winner
+
+    def end_game(self):
+        print("Game over")
