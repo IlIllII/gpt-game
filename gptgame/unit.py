@@ -13,22 +13,31 @@ class Unit:
         self.max_health = 0
         self.attack_range = 0
         self.vision_range = 0
+        self.move_cooldown = 0
+        self.attack_cooldown = 0
 
     def act(self, board) -> Action:
         raise NotImplementedError
+
+    def move(self, board) -> Action:
+        raise NotImplementedError
+
+    def cooldown(self) -> None:
+        if self.move_cooldown > 0:
+            self.move_cooldown -= 1
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= 1
+    
+    def can_move(self) -> bool:
+        return self.move_cooldown == 0
+
+    def can_attack(self) -> bool:
+        return self.attack_cooldown == 0
 
     def is_alive(self) -> bool:
         return self.alive
 
     def attack(self, tile: Tile) -> Action:
-        if not self.in_range(tile):
-            raise Exception("Tile not in range")
-        if not tile.is_occupied():
-            raise Exception("Tile not occupied")
-        if tile.occupant.player == self.player:
-            # TODO: friendly fire?
-            raise Exception("Tile occupied by friendly unit")
-
         return AttackAction(self, tile)
 
     def move(self, tile: Tile) -> Action:
