@@ -11,3 +11,6 @@ class Tile:
 
     def is_occupied(self):
         return self.occupant is not None
+    
+    def __hash__(self) -> int:
+        return hash((self.x, self.y))

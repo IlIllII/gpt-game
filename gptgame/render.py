@@ -19,6 +19,9 @@ class Renderer:
         self.debug = False
 
     def render(self, state_changes: StateChange):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
         board = self.game.board
         self.screen.fill((0, 0, 0))
         for i in range(board.height()):

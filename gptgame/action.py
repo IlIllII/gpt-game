@@ -33,8 +33,8 @@ class AttackAction(Action):
             raise Exception("Unit dead")
 
         self.target.health -= self.attacker.attack_damage
-        cooldown = self.attacker.action_cooldown
-        cooldown *= board.get_rubble(self.attacker.x, self.attacker.y)
+        cooldown = 1
+        cooldown += cooldown * board.get_rubble(self.attacker.x, self.attacker.y)
         self.attacker.action_cooldown = cooldown
 
         if self.target.health <= 0:
@@ -47,7 +47,12 @@ class MoveAction(Action):
         self.tile = tile
 
     def execute(self, board) -> None:
-        if not self.unit.in_range(self.tile, 1):
+        print("\nExecuting MoveAction")
+        print(f"Moving {self.unit} to {self.tile}")
+        print(f"Unit: {self.unit}, ({self.unit.x}, {self.unit.y}))")
+        print(f"Tile: {self.tile}, occupied: {self.tile.is_occupied()}")
+
+        if not self.unit.in_range(self.tile, 1.5):
             raise Exception("Tile not in range")
         if self.tile.is_occupied():
             raise Exception("Tile occupied")
@@ -56,8 +61,8 @@ class MoveAction(Action):
         if not self.unit.is_alive():
             raise Exception("Unit dead")
 
-        cooldown = self.unit.move_cooldown
-        cooldown *= board.get_rubble(self.unit.x, self.unit.y)
+        cooldown = 1
+        cooldown += cooldown * board.get_rubble(self.unit.x, self.unit.y)
         board.remove_occupant(self.unit.x, self.unit.y)
         self.unit.x = self.tile.x
         self.unit.y = self.tile.y

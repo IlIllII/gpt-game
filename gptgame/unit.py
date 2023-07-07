@@ -1,6 +1,8 @@
 from tile import Tile
 from action import Action, AttackAction, MoveAction, DieAction, IdleAction, SpawnAction
 import random
+from math import sqrt
+from queue import PriorityQueue
 
 
 class Unit:
@@ -14,8 +16,8 @@ class Unit:
         self.max_health = 0
         self.action_range = 0
         self.vision_range = 0
-        self.move_cooldown = 0
-        self.action_cooldown = 0
+        self.move_cooldown = 1
+        self.action_cooldown = 1
         self.bounty = 10
     
     def __str__(self) -> str:
@@ -24,9 +26,23 @@ class Unit:
     def take_turn(self, board) -> tuple[Action, Action]:
         # (Move, Act)
         self.cooldown()
+        print("taking turn!!")
+        print(f"move_cooldown: {self.move_cooldown}")
+        print(f"action_cooldown: {self.action_cooldown}")
+        if self.move_cooldown > 1:
+            # raise Exception("Unit on cooldown")
+            print("Unit on cooldown")
         if not self.is_alive():
             return self.die()
-        return (self.move(board), self.act(board))
+        if self.can_move():
+            move_action = self.move(board)
+        else:
+            move_action = IdleAction(self)
+        if self.can_act():
+            act_action = self.act(board)
+        else:
+            act_action = IdleAction(self)
+        return (move_action, act_action)
 
     def die(self) -> tuple[Action, Action]:
         return (IdleAction(self), DieAction(self))
@@ -69,10 +85,10 @@ class Unit:
         return self.in_range(tile, self.vision_range)
 
     def adjacent_tiles(self, board) -> list:
-        return board.tiles_in_radius(self.x, self.y, 1)
+        return board.tiles_in_radius(self.x, self.y, 1.5)
 
     def adjacent_occupied_tiles(self, board) -> list:
-        return board.occupied_tiles_in_radius(self.x, self.y, 1)
+        return board.occupied_tiles_in_radius(self.x, self.y, 1.5)
 
     def enemies_in_sight(self, board) -> list:
         return [
@@ -108,10 +124,10 @@ class Soldier(Unit):
         self.attack_damage = 1
         self.health = 3
         self.max_health = 3
-        self.action_range = 3
-        self.vision_range = 5
-        self.move_cooldown = 1
-        self.action_cooldown = 1
+        self.action_range = 4
+        self.vision_range = 50
+        self.move_cooldown = 2
+        self.action_cooldown = 2
         self.bounty = 10
     
     def act(self, board) -> Action:
@@ -133,6 +149,188 @@ class Soldier(Unit):
             
         return IdleAction(self)
 
+
+class QueueItem:
+    def __init__(self, cost, tile):
+        self.cost = cost
+        self.tile = tile
+
+    def __lt__(self, other):
+        return self.cost < other.cost
+
+
+class Soldier1(Soldier):
+    def move(self, board) -> Action:
+        if not self.can_move():
+            return IdleAction(self)
+
+        enemies = self.enemies_in_sight(board)
+        if len(enemies) > 0:
+            closest_enemy = min(enemies, key=lambda enemy: self.distance_to(enemy))
+            came_from, start, goal = self.astar_path((self.x, self.y), (closest_enemy.x, closest_enemy.y), board)
+            path = self.reconstruct_path(came_from, start, goal)
+            if path and len(path) > 1:
+                if path[1].is_occupied():
+                    return IdleAction(self)
+                return MoveAction(self, path[1])  # Moving to the second tile in the path, as the first one is the current location of the unit
+
+        movable_tiles = self.adjacent_tiles(board)
+        random.shuffle(movable_tiles)
+        for tile in movable_tiles:
+            if not tile.is_occupied():
+                return MoveAction(self, tile)
+                
+        return IdleAction(self)
+
+        return IdleAction(self)
+    
+    def astar_path(self, start, goal, board):
+        frontier = PriorityQueue()
+        start_tile = board.get_tile(start[0], start[1])
+        frontier.put(QueueItem(0, start_tile))
+        came_from = {start_tile: None}
+        cost_so_far = {start_tile: 0}
+
+        while not frontier.empty():
+            current = frontier.get().tile
+
+            if (current.x, current.y) == goal:
+                if current not in came_from:
+                    came_from[current] = current  # Add the goal tile to the came_from dictionary
+                break
+
+            for next_tile in board.tiles_in_radius(current.x, current.y, 1):
+                if next_tile.is_occupied() and (next_tile.x, next_tile.y) != goal:
+                    continue
+                
+                new_cost = cost_so_far[current] + next_tile.rubble + 1
+                if next_tile not in cost_so_far or new_cost < cost_so_far[next_tile]:
+                    cost_so_far[next_tile] = new_cost
+                    priority = new_cost + self.heuristic(goal, next_tile)
+                    frontier.put(QueueItem(priority, next_tile))
+                    came_from[next_tile] = current  # this line updates came_from for every explored tile
+
+        return came_from, start_tile, board.get_tile(goal[0], goal[1])
+    # ... existing code ...
+
+    def reconstruct_path(self, came_from, start, goal):
+        current = goal
+        path = []
+        while current != start:
+            if current not in came_from:
+                # If the current tile is not in came_from, a path could not be found.
+                return None
+            path.append(current)
+            try:
+                current = came_from[current]
+            except KeyError:
+                # If the current tile is not in came_from, a path could not be found.
+                return None
+        path.append(start)  # optional
+        path.reverse()  # optional
+        return path
+
+    def heuristic(self, goal, next):
+        # Chebyshev distance
+        dx = abs(goal[0] - next.x)
+        dy = abs(goal[1] - next.y)
+        return max(dx, dy)
+
+    
+    def distance_to(self, unit):
+        return abs(self.x - unit.x) + abs(self.y - unit.y)
+
+
+class Soldier2(Soldier):
+
+    def act(self, board) -> Action:
+        enemies = self.enemies_in_action_range(board)
+        if len(enemies) > 0:
+            # Attack only if the health is not critically low
+            if self.health > 1:  
+                return AttackAction(self, enemies[0])
+        return IdleAction(self)
+    
+    def move(self, board) -> Action:
+        if not self.can_move():
+            return IdleAction(self)
+
+        enemies = self.enemies_in_sight(board)
+        if len(enemies) > 0:
+            closest_enemy = min(enemies, key=lambda enemy: self.distance_to(enemy))
+            came_from, start, goal = self.astar_path((self.x, self.y), (closest_enemy.x, closest_enemy.y), board)
+            path = self.reconstruct_path(came_from, start, goal)
+            if path and len(path) > 1:
+                if path[1].is_occupied():
+                    return IdleAction(self)
+                return MoveAction(self, path[1])  # Moving to the second tile in the path, as the first one is the current location of the unit
+
+        movable_tiles = self.adjacent_tiles(board)
+        random.shuffle(movable_tiles)
+        for tile in movable_tiles:
+            if not tile.is_occupied():
+                return MoveAction(self, tile)
+                
+        return IdleAction(self)
+
+    
+    def astar_path(self, start, goal, board):
+        frontier = PriorityQueue()
+        start_tile = board.get_tile(start[0], start[1])
+        frontier.put(QueueItem(0, start_tile))
+        came_from = {start_tile: None}
+        cost_so_far = {start_tile: 0}
+
+        while not frontier.empty():
+            current = frontier.get().tile
+
+            if (current.x, current.y) == goal:
+                if current not in came_from:
+                    came_from[current] = current  # Add the goal tile to the came_from dictionary
+                break
+
+            for next_tile in board.tiles_in_radius(current.x, current.y, 1):
+                if next_tile.is_occupied() and (next_tile.x, next_tile.y) != goal:
+                    continue
+                
+                new_cost = cost_so_far[current] + next_tile.rubble + 1
+                if next_tile not in cost_so_far or new_cost < cost_so_far[next_tile]:
+                    cost_so_far[next_tile] = new_cost
+                    priority = new_cost + self.heuristic(goal, next_tile)
+                    frontier.put(QueueItem(priority, next_tile))
+                    came_from[next_tile] = current  # this line updates came_from for every explored tile
+
+        return came_from, start_tile, board.get_tile(goal[0], goal[1])
+    # ... existing code ...
+
+    def reconstruct_path(self, came_from, start, goal):
+        current = goal
+        path = []
+        while current != start:
+            if current not in came_from:
+                # If the current tile is not in came_from, a path could not be found.
+                return None
+            path.append(current)
+            try:
+                current = came_from[current]
+            except KeyError:
+                # If the current tile is not in came_from, a path could not be found.
+                return None
+        path.append(start)  # optional
+        path.reverse()  # optional
+        return path
+
+    def heuristic(self, goal, next):
+        # Chebyshev distance
+        dx = abs(goal[0] - next.x)
+        dy = abs(goal[1] - next.y)
+        return max(dx, dy)
+
+    
+    def distance_to(self, unit):
+        return abs(self.x - unit.x) + abs(self.y - unit.y)
+
+
 class Spawner(Unit):
     def __init__(self) -> None:
         super().__init__()
@@ -144,6 +342,7 @@ class Spawner(Unit):
         self.move_cooldown = 1
         self.action_cooldown = 1
         self.bounty = 100
+        self.spawn_unit = None
     
     def act(self, board) -> Action:
         if self.can_act():
@@ -151,7 +350,9 @@ class Spawner(Unit):
             random.shuffle(adjacent_tiles)
             for tile in adjacent_tiles:
                 if not tile.is_occupied():
-                    unit = Soldier()
+                    if self.spawn_unit is None:
+                        raise Exception("Spawner.spawn_unit is None")
+                    unit = self.spawn_unit()
                     unit.player = self.player
                     return SpawnAction(unit, tile)
         return IdleAction(self)

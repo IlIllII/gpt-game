@@ -54,10 +54,11 @@ class Board:
         self.tiles[y][x].resource = resource
 
     def tiles_in_radius(self, x: int, y: int, radius: int) -> list:
+        rounded_radius = int(radius) + 1
         tiles = []
         radius_squared = radius**2
-        for i in range(-radius, radius + 1):
-            for j in range(-radius, radius + 1):
+        for i in range(-rounded_radius, rounded_radius + 1):
+            for j in range(-rounded_radius, rounded_radius + 1):
                 if i == 0 and j == 0:
                     continue
                 if (
