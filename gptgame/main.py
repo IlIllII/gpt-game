@@ -1,7 +1,7 @@
 from game import Game
 from player import Player
 from board import Board
-from unit import Unit, Spawner, Soldier, Soldier1, Soldier2
+from unit import Unit, Spawner, Soldier, Soldier1, Soldier2, Soldier3, Soldier4, Soldier5
 from tile import Tile
 from action import Action, AttackAction, MoveAction, DieAction, IdleAction
 from statechange import StateChange
@@ -58,10 +58,10 @@ def main():
     game = Game(player1, player2, board)
     spawner1 = Spawner()
     spawner1.player = player1
-    spawner1.spawn_unit = Soldier1
+    spawner1.spawn_unit = Soldier5
     spawner2 = Spawner()
     spawner2.player = player2
-    spawner2.spawn_unit = Soldier2
+    spawner2.spawn_unit = Soldier4
     spawner1.x = 0
     spawner1.y = 0
     spawner2.x = len(resources[0]) - 1

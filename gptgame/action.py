@@ -47,11 +47,6 @@ class MoveAction(Action):
         self.tile = tile
 
     def execute(self, board) -> None:
-        print("\nExecuting MoveAction")
-        print(f"Moving {self.unit} to {self.tile}")
-        print(f"Unit: {self.unit}, ({self.unit.x}, {self.unit.y}))")
-        print(f"Tile: {self.tile}, occupied: {self.tile.is_occupied()}")
-
         if not self.unit.in_range(self.tile, 1.5):
             raise Exception("Tile not in range")
         if self.tile.is_occupied():
@@ -84,9 +79,10 @@ class DieAction(Action):
 
 
 class SpawnAction(Action):
-    def __init__(self, unit, tile) -> None:
+    def __init__(self, spawner, unit, tile) -> None:
         self.unit = unit
         self.tile = tile
+        self.spawner = spawner
 
     def execute(self, board) -> None:
         if self.tile.is_occupied():
@@ -95,3 +91,4 @@ class SpawnAction(Action):
         self.unit.y = self.tile.y
         board.set_occupant(self.tile.x, self.tile.y, self.unit)
         self.unit.player.add_unit(self.unit)
+        self.spawner.action_cooldown = 5
