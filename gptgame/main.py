@@ -1,12 +1,30 @@
 from game import Game
 from player import Player
 from board import Board
-from unit import Unit, Spawner, Soldier, Soldier1, Soldier2, Soldier3, Soldier4, Soldier5
+from unit import (
+    Unit,
+    Spawner,
+    Soldier,
+    Soldier1,
+    Soldier2,
+    Soldier3,
+    Soldier4,
+    Soldier5,
+    Soldier51,
+    Soldier52,
+    Soldier54,
+    Soldier41,
+    Soldier31,
+    Soldier32,
+    Soldier21,
+    Soldier6,
+)
 from tile import Tile
 from action import Action, AttackAction, MoveAction, DieAction, IdleAction
 from statechange import StateChange
 from render import Renderer
 import time
+
 # from gptgame.state import State
 
 
@@ -58,10 +76,10 @@ def main():
     game = Game(player1, player2, board)
     spawner1 = Spawner()
     spawner1.player = player1
-    spawner1.spawn_unit = Soldier5
+    spawner1.spawn_unit = Soldier21
     spawner2 = Spawner()
     spawner2.player = player2
-    spawner2.spawn_unit = Soldier4
+    spawner2.spawn_unit = Soldier6
     spawner1.x = 0
     spawner1.y = 0
     spawner2.x = len(resources[0]) - 1

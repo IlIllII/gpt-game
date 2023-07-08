@@ -85,5 +85,8 @@ class Board:
                 tiles.append(tile)
         return tiles
 
+    def adjacent_tiles(self, x: int, y: int) -> list:
+        return self.tiles_in_radius(x, y, 1.5)
+
     def __str__(self) -> str:
         return str(self.tiles)

@@ -4,6 +4,10 @@ class Action:
 
     def execute(self, board) -> None:
         raise NotImplementedError
+    
+    def apply(self, board) -> None:
+        raise NotImplementedError
+
 
 
 class IdleAction(Action):

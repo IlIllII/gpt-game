@@ -5,7 +5,7 @@ from unit import Spawner, Soldier
 
 
 class Renderer:
-    def __init__(self, game) -> None:
+    def __init__(self, game: Game) -> None:
         dims = game.game_dimensions()
         self.cell_size = 50
         self.width = dims[0] * self.cell_size
